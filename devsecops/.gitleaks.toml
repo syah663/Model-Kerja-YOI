@@ -1,0 +1,23 @@
+# Konfigurasi Universal Gitleaks untuk Ekosistem YOI (AG v2.1)
+title = "YOI Gitleaks Universal Rule Config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Izinkan nilai dummy dan contoh pada template dokumentasi & pengujian"
+paths = [
+    '''docs/''',
+    '''blueprints/''',
+    '''monitoring/''',
+    '''templates/''',
+    '''tests/''',
+    '''core/MODEL_KERJA\.md''',
+    '''core/PURSUIT_GOALS\.template\.md'''
+]
+regexes = [
+    '''example''',
+    '''dummy''',
+    '''placeholder''',
+    '''[A-Za-z0-9_]{32}'''
+]

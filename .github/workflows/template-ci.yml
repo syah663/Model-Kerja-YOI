@@ -1,0 +1,49 @@
+name: YOI DevSecOps CI Quality Gate
+
+on:
+  push:
+    branches: [ main, master, dev ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  security-and-lint:
+    name: Lint & Secret Scan (YOI AG v2.1)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 1. Gitleaks Secret Detection
+      - name: Gitleaks Secret Detection
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. Setup PHP Runtime
+      - name: Setup PHP Environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      # 3. PHP Syntax Linting
+      - name: Run PHP Syntax Lint
+        run: |
+          if [ -d "app" ] || [ -d "public" ] || [ -d "src" ]; then
+            find app public src config -type f -name "*.php" -exec php -l {} \;
+          else
+            echo "No standard PHP source directories found, skipping lint."
+          fi
+
+      # 4. Composer Dependency Security Audit
+      - name: Audit Composer Dependencies
+        run: |
+          if [ -f "composer.json" ]; then
+            composer audit
+          else
+            echo "composer.json not found, skipping."
+          fi
